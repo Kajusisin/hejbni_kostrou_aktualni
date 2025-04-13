@@ -1,0 +1,8 @@
+# Smazání stávající databáze
+Remove-Item -Path instance\database.db -Force
+
+# Vytvoření nové databáze a import dat
+python -c "from hejbni_kostrou import app, db; app.app_context().push(); db.create_all()"
+python import_skolni_roky.py
+python import_zaci.py
+python import_bodovaci_databaze.py

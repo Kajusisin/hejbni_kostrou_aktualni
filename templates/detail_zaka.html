@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Detail žáka{% endblock %}
+{% block body_id %}detail-zaka{% endblock %}
+
+{% block content %}
+<h1>🏃 Výkony žáka – {{ zak.jmeno }} {{ zak.prijmeni }}</h1>
+
+<div class="content-zak">
+    <!-- Levý sloupec – osobní info -->
+    <div class="left-side">
+        <div class="student-info-wrapper">
+            <table class="student-info-table">
+                <tr>
+                    <th>Jméno:</th>
+                    <td>{{ zak.jmeno }}</td>
+                </tr>
+                <tr>
+                    <th>Příjmení:</th>
+                    <td>{{ zak.prijmeni }}</td>
+                </tr>
+                <tr>
+                    <th>Třída:</th>
+                    <td>{{ zak.trida }}</td>
+                </tr>
+                <tr>
+                    <th>Pohlaví:</th>
+                    <td>{{ zak.pohlavi }}</td>
+                </tr>
+                <tr>
+                    <th>Rok nástupu:</th>
+                    <td>{{ zak.rok_nastupu }}</td>
+                </tr>
+            </table>
+            <div class="logo-wrapper">
+                {% if zak.pohlavi == 'chlapec' %}
+                <img src="{{ url_for('static', filename='img/logo_chlapec.png') }}" class="logo-chlapec"
+                    alt="Logo chlapec">
+                {% else %}
+                <img src="{{ url_for('static', filename='img/logo_divka.png') }}" class="logo-divka" alt="Logo dívka">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pravý sloupec – body, průměr, známka -->
+    <div class="right-side zak-points">
+        <div class="info-box points-box">Body: <span id="total-points">0</span></div>
+        <div class="info-box average-box">Průměr: <span id="average-points">0</span></div>
+        <div class="info-box grade-box">Známka: <span id="final-grade">–</span></div>
+        <div class="discipline-count-box">Splněno: <span id="discipline-count">0</span> / {{ disciplines|length }}</div>
+    </div>
+</div>
+
+<!-- Výkonová tabulka -->
+<div class="performance-section">
+    <table class="discipline-table {{ zak.pohlavi }}">
+        <thead>
+            <tr>
+                <th>Disciplína</th>
+                <th>Výkon</th>
+                <th>Body</th>
+                <th>Jednotka</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for discipline in disciplines %}
+            <tr data-discipline-id="{{ discipline.id }}">
+                <td>{{ discipline.nazev }}</td>
+                <td>
+                    <input type="text" class="vykon-input" name="vykon_{{ discipline.id }}"
+                        data-discipline-id="{{ discipline.id }}"
+                        value="{{ student_scores.get(discipline.id, {}).get('vykon', '') }}"
+                        onblur="handlePerformanceInput(this)" onkeydown="handleKeyPress(event, this)">
+                </td>
+                <td class="points-cell">{{ student_scores.get(discipline.id, {}).get('body', '') }}</td>
+                <td>{{ discipline.jednotka }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Bonusy a penalizace -->
+<div class="bonus-section">
+    <h2>Bonusové body</h2>
+    <input type="number" id="bonus-input" class="bonus-input" value="{{ zak.bonus }}" onblur="handleExtraPoints()"
+        onkeydown="handleKeyPress(event, this)">
+</div>
+
+<div class="penalty-section">
+    <h2>Penalizace</h2>
+    <input type="number" id="penalty-input" class="penalty-input" value="{{ zak.penalizace }}"
+        onblur="handleExtraPoints()" onkeydown="handleKeyPress(event, this)">
+</div>
+
+<!-- Skrytá metadata -->
+<input type="hidden" id="zak-id" value="{{ zak.id }}">
+<input type="hidden" id="skolni-rok" value="{{ vybrany_rok }}">
+<input type="hidden" id="pohlavi" value="{{ zak.pohlavi }}">
+
+{% endblock %}
